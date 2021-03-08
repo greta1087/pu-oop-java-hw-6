@@ -31,51 +31,62 @@ public class GamePanel extends JPanel implements ActionListener {
         this.addKeyListener(new MyKeyAdapter());
         startGame();
     }
+
     public void startGame() {
         snakeFood();
         gameRunning = true;
         timer = new Timer(DELAY,this);
         timer.start();
     }
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
     }
+
     public void draw(Graphics g) {
 
         if(gameRunning) {
 
-            g.setColor(Color.red);
-            g.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
+                g.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
+                g.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
 
-            for(int i = 0; i< bodyParts; i++) {
-                if(i == 0) {
-                    g.setColor(Color.green);
-                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                for (int i = 0; i < bodyParts; i++) {
+                    if (i == 0) {
+                        g.setColor(Color.green);
+                        g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                    } else {
+                        g.setColor(new Color(45, 180, 0));
+                        g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                    }
                 }
-                else {
-                    g.setColor(new Color(45,180,0));
-                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
-                }
-            }
-            g.setColor(Color.red);
-            g.setFont( new Font("Comic Sans MS",Font.PLAIN, 20));
-            FontMetrics metrics = getFontMetrics(g.getFont());
-            g.drawString("Score: "+ (foodEaten * 10), (SCREEN_WIDTH - metrics.stringWidth("Score: "+ foodEaten))/2, g.getFont().getSize());
-        }
-        else {
-            gameOver(g);
-        }
 
+                g.setColor(Color.white);
+                g.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+                FontMetrics metrics = getFontMetrics(g.getFont());
+                g.drawString("Score: " + (foodEaten * 10), (SCREEN_WIDTH - metrics.stringWidth("Score: " + foodEaten)) / 2, g.getFont().getSize());
+
+        } else {
+
+             if (foodEaten >= 30) {
+                 youWin(g);
+             } else {
+                 gameOver(g);
+             }
+        }
     }
+
+
     public void snakeFood(){
         foodX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
         foodY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
     }
+
     public void obstacle(){
         obstacleX = random.nextInt((int)(SCREEN_WIDTH/UNIT_SIZE))*UNIT_SIZE;
         obstacleY = random.nextInt((int)(SCREEN_HEIGHT/UNIT_SIZE))*UNIT_SIZE;
     }
+
     public void move(){
         for(int i = bodyParts;i>0;i--) {
             x[i] = x[i-1];
@@ -98,6 +109,7 @@ public class GamePanel extends JPanel implements ActionListener {
         }
 
     }
+
     public void checkSnakeFood() {
         if((x[0] == foodX) && (y[0] == foodY)) {
             bodyParts++;
@@ -105,10 +117,15 @@ public class GamePanel extends JPanel implements ActionListener {
             snakeFood();
         }
     }
-    public void checkCollisions() {
+
+    public void checkGameEnd() {
         //checks if the snake collides with it's body
         for(int i = bodyParts;i>0;i--) {
             if((x[0] == x[i])&& (y[0] == y[i])) {
+                gameRunning = false;
+            }
+        //checks if the goal food is reached
+            if (foodEaten >= 30) {
                 gameRunning = false;
             }
         }
@@ -116,6 +133,8 @@ public class GamePanel extends JPanel implements ActionListener {
             timer.stop();
         }
     }
+
+
     public void gameOver(Graphics g) {
         //Score
         g.setColor(Color.red);
@@ -128,17 +147,34 @@ public class GamePanel extends JPanel implements ActionListener {
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Game Over", (SCREEN_WIDTH - metrics2.stringWidth("Game Over"))/2, SCREEN_HEIGHT/2);
     }
+
+    public void youWin(Graphics g) {
+
+        //Score
+        g.setColor(Color.green);
+        g.setFont( new Font("Comic Sans MS",Font.PLAIN, 40));
+        FontMetrics metrics1 = getFontMetrics(g.getFont());
+        g.drawString("Score: "+ (foodEaten*10), (SCREEN_WIDTH - metrics1.stringWidth("Score: "+ foodEaten))/2, g.getFont().getSize());
+        //You win text
+        g.setColor(Color.green);
+        g.setFont( new Font("Comic Sans MS",Font.PLAIN, 60));
+        FontMetrics metrics2 = getFontMetrics(g.getFont());
+        g.drawString("Congrats! You won!", (SCREEN_WIDTH - metrics2.stringWidth("Congrats! You won!"))/2, SCREEN_HEIGHT/2);
+
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if(gameRunning) {
             move();
             checkSnakeFood();
-            checkCollisions();
+            checkGameEnd();
         }
         repaint();
     }
 
+    //The game is played with the arrow keys
     public class MyKeyAdapter extends KeyAdapter{
         @Override
         public void keyPressed(KeyEvent e) {
