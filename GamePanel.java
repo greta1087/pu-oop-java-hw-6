@@ -9,7 +9,7 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_WIDTH*SCREEN_HEIGHT)/(UNIT_SIZE*UNIT_SIZE);
-    static final int DELAY = 150;
+    static final int DELAY = 120;
     final int x[] = new int[GAME_UNITS];
     final int y[] = new int[GAME_UNITS];
     int bodyParts = 1;
@@ -134,6 +134,24 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+    public void goThroughWalls() {
+        //checks if snake touches left border
+        if(x[0] < 0) {
+            x[0] = SCREEN_WIDTH;
+        }
+        //checks if snake touches right border
+        if(x[0] > SCREEN_WIDTH) {
+            x[0] = 0;
+        }
+        //checks if snake touches top border
+        if(y[0] < 0) {
+            y[0] = SCREEN_HEIGHT;
+        }
+        //checks if snake touches bottom border
+        if(y[0] > SCREEN_HEIGHT) {
+            y[0] = 0;
+        }
+    }
 
     public void gameOver(Graphics g) {
         //Score
@@ -170,6 +188,7 @@ public class GamePanel extends JPanel implements ActionListener {
             move();
             checkSnakeFood();
             checkGameEnd();
+            goThroughWalls();
         }
         repaint();
     }
